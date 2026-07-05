@@ -4,37 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"eventrealm_12345678/configs"     // Ubah 'namafolder' jadi nama di go mod init
-	"eventrealm_12345678/handlers"
-	"eventrealm_12345678/middlewares"
+
+	"eventrealm_release/configs"     // UBAH 12345 DENGAN NPM KALIAN
+	"eventrealm_release/handlers"    // UBAH 12345 DENGAN NPM KALIAN
+	"eventrealm_release/middlewares" // UBAH 12345 DENGAN NPM KALIAN
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	// TODO: Ganti dengan 5 digit terakhir NPM masing - masing.
-	// Contoh: npm 56419080, maka ubah angka port: 19080
-	PORT := 28081
+	// UBAH DENGAN 5 DIGIT TERAKHIR NPM KALIAN
+	PORT := 12345
 
-	// TODO: Inisialisasi koneksi database
+	configs.ConnectDB()
 
-	// Inisialisasi server dan route
-	// Buat mux untuk routing
 	mux := http.NewServeMux()
-
-	// Buat file server untuk konten statis
 	fileServer := http.FileServer(http.Dir("catalog"))
 
-	// Tambahkan route untuk file statis
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.ServeStaticFile(w, r, "catalog", fileServer)
 	})
 
-	// TODO: Tambahkan route untuk API events, lihat contoh di atas untuk menambahkan route. contoh lain: mux.HandleFunc("/api/endpoint1/", handlers.HandleEvents)
+	// Route API
+	mux.HandleFunc("/api/events/", handlers.HandleEvents)
+	mux.HandleFunc("/api/events", handlers.HandleEvents)
 
-	// Terapkan middleware logging
 	loggedMux := middlewares.LogRequestHandler(mux)
 
-	// Jalankan server dengan port yang sudah ditentukan
 	fmt.Printf("Server berjalan di http://localhost:%d\n", PORT)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", PORT), loggedMux))
 }

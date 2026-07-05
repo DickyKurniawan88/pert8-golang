@@ -16,7 +16,7 @@ func ConnectDB() {
 	// TODO: Ubah string koneksi di bawah sesuai konfigurasi di lab masing - masing
 	var err error
 	//inget nama databasenya event_realm_npm_npm kalian masing"
-	DB, err = sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/event_realm_npm_npm?parseTime=true")
+	DB, err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/event_realm_release?parseTime=true")
 	if err != nil {
 		log.Fatal("Gagal membuka koneksi database:", err)
 	}

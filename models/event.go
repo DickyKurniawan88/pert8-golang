@@ -1,24 +1,18 @@
 package models
 
-import (
-	// "time"
-)
-
-// TODO: Buat struct Event dengan field-field berikut:
-// - ID (int)
-// - Title (string)
-// - Organizer (string)
-// - Description (string)
-// - Date (time.Time)
-// - Location (string)
-// - Price (float64)
-// - Capacity (int)
-// - ImageURL (string)
-// - Status (string)
-// - CreatedAt (time.Time)
-// - UpdatedAt (time.Time)
-// Pastikan untuk menambahkan tag json untuk setiap field agar dapat dikonversi ke format JSON
+import "time"
 
 type Event struct {
-	// Tambahkan field-field sesuai ketentuan di atas
+	ID          int       `json:"id_event"`
+	Title       string    `json:"title"`
+	Organizer   string    `json:"organizer"`
+	Description string    `json:"description"`
+	Date        time.Time `json:"date"`
+	Location    string    `json:"location"`
+	Price       float64   `json:"price"`
+	Capacity    int       `json:"capacity"`
+	ImageURL    string    `json:"image_url"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }

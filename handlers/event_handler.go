@@ -1,58 +1,103 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"eventrealm_12345678/configs"
-	"eventrealm_12345678/models"
-	"eventrealm_12345678/utils"
+	"eventrealm_release/configs" // UBAH 12345 DENGAN NPM KALIAN
+	"eventrealm_release/models"  // UBAH 12345 DENGAN NPM KALIAN
+	"eventrealm_release/utils"   // UBAH 12345 DENGAN NPM KALIAN
 )
 
-// HandleEvents mengarahkan request ke handler yang sesuai berdasarkan method HTTP
 func HandleEvents(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implementasikan routing berdasarkan HTTP method
-	// 1. Ekstrak ID dari URL jika ada
-	// 2. Routing ke fungsi yang sesuai (GET, POST, PUT, DELETE)
-	// 3. Return error jika method tidak didukung
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/events/")
+	var id int
+	if idStr != "" && idStr != "/api/events" {
+		id, _ = strconv.Atoi(idStr)
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		handleGetEvents(w, id)
+	case http.MethodPost:
+		handlePostEvent(w, r)
+	case http.MethodPut:
+		handleUpdateEvent(w, r, id)
+	case http.MethodDelete:
+		handleDeleteEvent(w, id)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
-// TODO: Implementasikan fungsi handleGetEvents untuk mengambil data event (semua atau spesifik)
-// Fungsi menerima parameter w http.ResponseWriter dan id int
 func handleGetEvents(w http.ResponseWriter, id int) {
-	// TODO: Implementasi GET untuk semua events atau event dengan ID tertentu
-	// Jika id == 0, ambil semua event, jika tidak, ambil event dengan ID tersebut
+	var events []models.Event
+
+	if id == 0 {
+		rows, err := configs.DB.Query("SELECT * FROM events")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var e models.Event
+			rows.Scan(&e.ID, &e.Title, &e.Organizer, &e.Description, &e.Date, &e.Location, &e.Price, &e.Capacity, &e.ImageURL, &e.Status, &e.CreatedAt, &e.UpdatedAt)
+			events = append(events, e)
+		}
+	} else {
+		var e models.Event
+		err := configs.DB.QueryRow("SELECT * FROM events WHERE id_event = ?", id).Scan(
+			&e.ID, &e.Title, &e.Organizer, &e.Description, &e.Date, &e.Location, &e.Price, &e.Capacity, &e.ImageURL, &e.Status, &e.CreatedAt, &e.UpdatedAt)
+		if err != nil {
+			http.Error(w, "Event tidak ditemukan", http.StatusNotFound)
+			return
+		}
+		events = append(events, e)
+	}
+
+	utils.RespondJSON(w, events)
 }
 
-// TODO: Implementasikan fungsi handlePostEvent untuk menambahkan event baru
-// Fungsi menerima parameter w http.ResponseWriter dan r *http.Request
 func handlePostEvent(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implementasi POST untuk menambahkan event baru
-	// 1. Decode JSON dari request body ke struct Event
-	// 2. Validasi data event
-	// 3. Set nilai default dan timestamp
-	// 4. Simpan ke database
-	// 5. Return response sukses atau error
+	var e models.Event
+	json.NewDecoder(r.Body).Decode(&e)
+	e.Status = "upcoming"
+	e.Date = time.Now() // default jika kosong
+
+	_, err := configs.DB.Exec("INSERT INTO events (title, organizer, description, date, location, price, capacity, image_url, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		e.Title, e.Organizer, e.Description, e.Date, e.Location, e.Price, e.Capacity, e.ImageURL, e.Status)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	utils.RespondJSON(w, map[string]string{"message": "Event berhasil ditambahkan"})
 }
 
-// TODO: Implementasikan fungsi handleUpdateEvent untuk memperbarui data event
-// Fungsi menerima parameter w http.ResponseWriter, r *http.Request, dan id int
 func handleUpdateEvent(w http.ResponseWriter, r *http.Request, id int) {
-	// TODO: Implementasi PUT untuk memperbarui event
-	// 1. Decode JSON dari request body ke struct Event
-	// 2. Validasi data event
-	// 3. Update data di database
-	// 4. Return response sukses atau error
+	var e models.Event
+	json.NewDecoder(r.Body).Decode(&e)
+
+	_, err := configs.DB.Exec("UPDATE events SET title=?, organizer=?, description=?, location=?, price=?, capacity=?, image_url=?, status=? WHERE id_event=?",
+		e.Title, e.Organizer, e.Description, e.Location, e.Price, e.Capacity, e.ImageURL, e.Status, id)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	utils.RespondJSON(w, map[string]string{"message": "Event berhasil diupdate"})
 }
 
-// TODO: Implementasikan fungsi handleDeleteEvent untuk menghapus event
-// Fungsi menerima parameter w http.ResponseWriter dan id int
 func handleDeleteEvent(w http.ResponseWriter, id int) {
-	// TODO: Implementasi DELETE untuk menghapus event
-	// 1. Hapus event dari database berdasarkan ID
-	// 2. Return response sukses atau error
+	_, err := configs.DB.Exec("DELETE FROM events WHERE id_event = ?", id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	utils.RespondJSON(w, map[string]string{"message": "Event berhasil dihapus"})
 }

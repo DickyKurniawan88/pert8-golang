@@ -1,8 +1,8 @@
--- Membuat database event_realm
-CREATE DATABASE IF NOT EXISTS event_realm;
+-- Membuat database event_realm_npm
+CREATE DATABASE IF NOT EXISTS event_realm_npm_npm; --ubah jadi npm kalian
 
--- Menggunakan database event_realm
-USE event_realm;
+-- Menggunakan database event_realm_npm
+USE event_realm_npm_npm; 
 
 -- TODO: Tambahkan pembuatan tabel events dengan struktur sesuai ketentuan:
 -- 1. Field id_event sebagai primary key dengan tipe INT, auto increment

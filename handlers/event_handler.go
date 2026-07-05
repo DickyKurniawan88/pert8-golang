@@ -1,17 +1,13 @@
 package handlers
 
 import (
-	// "database/sql"
-	// "encoding/json"
-	// "log"
+	"fmt"
+	"log"
 	"net/http"
-	// "strconv"
-	// "strings"
-	// "time"
-	//
-	// "namafolder/configs"
-	// "namafolder/models"
-	// "namafolder/utils"
+	"eventrealm_12345678/configs"     // Ubah 'namafolder' jadi nama di go mod init
+	"eventrealm_12345678/handlers"
+	"eventrealm_12345678/middlewares"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // HandleEvents mengarahkan request ke handler yang sesuai berdasarkan method HTTP
